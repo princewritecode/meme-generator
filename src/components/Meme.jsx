@@ -1,5 +1,4 @@
 import React from "react";
-import memesData from "../MemesData";
 export default function Meme()
 {
     /**
@@ -10,16 +9,28 @@ export default function Meme()
      * about displaying the image yet)
      */
     const [memeImage, setMemeImage] = React.useState('');
+    const [allMeme, setAllMeme] = React.useState([]);
+    React.useEffect(
+        () =>
+        {
+            fetchData();
+        }, []);
+
+    const fetchData = async () =>
+    {
+        const dataMeme = await fetch("https://api.imgflip.com/get_memes");
+        const dataOut = await dataMeme.json();
+        setAllMeme(dataOut.data.memes);
+    };
+    console.log(allMeme);
     function getImage()
     {
-
-        const meme = memesData.data.memes;
+        const meme = allMeme;
         console.log(meme);
         const randomSelect = Number(Math.floor(Math.random() * meme.length));
         console.log(randomSelect);
         setMemeImage(meme[randomSelect].url);
     }
-
     return (
         <main>
             <div className="form">
@@ -40,7 +51,6 @@ export default function Meme()
                 </button>
 
                 <img src={memeImage}></img>
-
             </div>
         </main>
     );
