@@ -2,35 +2,48 @@ import React from "react";
 export default function Meme()
 {
     /**
-     * Challenge: Get a random image from the `memesData` array
-     * when the "new meme image" button is clicked.
+     * Challenge:
+     * Try to figure out why our code is broken! 😞
      *
-     * Log the URL of the image to the console. (Don't worry
-     * about displaying the image yet)
+     * Hint: it has to do with the difference between
+     * what we were importing before from memesData.js
+     * and what we're setting our state as with `allMemes`
      */
-    const [memeImage, setMemeImage] = React.useState('');
-    const [allMeme, setAllMeme] = React.useState([]);
-    React.useEffect(
-        () =>
-        {
-            fetchData();
-        }, []);
 
-    const fetchData = async () =>
+    const [meme, setMeme] = React.useState({
+        topText: "",
+        bottomText: "",
+        randomImage: "http://i.imgflip.com/1bij.jpg"
+    });
+    const [allMemes, setAllMemes] = React.useState([]);
+
+    React.useEffect(() =>
     {
-        const dataMeme = await fetch("https://api.imgflip.com/get_memes");
-        const dataOut = await dataMeme.json();
-        setAllMeme(dataOut.data.memes);
-    };
-    console.log(allMeme);
-    function getImage()
+        fetch("https://api.imgflip.com/get_memes")
+            .then(res => res.json())
+            .then(data => setAllMemes(data.data.memes));
+    }, []);
+
+    function getMemeImage()
     {
-        const meme = allMeme;
-        console.log(meme);
-        const randomSelect = Number(Math.floor(Math.random() * meme.length));
-        console.log(randomSelect);
-        setMemeImage(meme[randomSelect].url);
+        const randomNumber = Math.floor(Math.random() * allMemes.length);
+        const url = allMemes[randomNumber].url;
+        setMeme(prevMeme => ({
+            ...prevMeme,
+            randomImage: url
+        }));
+
     }
+
+    function handleChange(event)
+    {
+        const { name, value } = event.target;
+        setMeme(prevMeme => ({
+            ...prevMeme,
+            [name]: value
+        }));
+    }
+
     return (
         <main>
             <div className="form">
@@ -38,19 +51,29 @@ export default function Meme()
                     type="text"
                     placeholder="Top text"
                     className="form--input"
+                    name="topText"
+                    value={meme.topText}
+                    onChange={handleChange}
                 />
                 <input
                     type="text"
                     placeholder="Bottom text"
                     className="form--input"
+                    name="bottomText"
+                    value={meme.bottomText}
+                    onChange={handleChange}
                 />
                 <button
                     className="form--button"
-                    onClick={getImage}>
+                    onClick={getMemeImage}
+                >
                     Get a new meme image 🖼
                 </button>
-
-                <img src={memeImage}></img>
+            </div>
+            <div className="meme">
+                <img src={meme.randomImage} className="meme--image" />
+                <h2 className="meme--text top">{meme.topText}</h2>
+                <h2 className="meme--text bottom">{meme.bottomText}</h2>
             </div>
         </main>
     );
